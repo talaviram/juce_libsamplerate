@@ -68,6 +68,14 @@ void SRCAudioSource::prepareToPlay (int samplesPerBlockExpected, double sampleRa
     }
 }
 
+void SRCAudioSource::reset()
+{
+    for (auto channel = 0; channel < numChannels; channel++)
+    {
+        result = libsamplerate::src_reset (resamplers_[channel]);
+    }
+}
+
 void SRCAudioSource::releaseResources()
 {
     input->releaseResources();

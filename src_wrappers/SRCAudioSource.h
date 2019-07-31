@@ -60,6 +60,9 @@ public:
      */
     double getResamplingRatio() const noexcept                  { return ratio; }
 
+    /** Resets resampler state **/
+    void reset();
+
     //==============================================================================
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
     void releaseResources() override;
