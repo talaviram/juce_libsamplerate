@@ -27,3 +27,4 @@
 //==============================================================================
 #include "src_wrappers/libsamplerate_SRC.cpp"
 #include "src_wrappers/SRCAudioSource.cpp"
+#include "src_wrappers/SRCAudioTransportSource.cpp"

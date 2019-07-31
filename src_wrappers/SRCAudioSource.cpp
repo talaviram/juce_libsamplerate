@@ -63,8 +63,8 @@ void SRCAudioSource::prepareToPlay (int samplesPerBlockExpected, double sampleRa
     for (auto channel = 0; channel < numChannels; channel++)
     {
         data_.add (new libsamplerate::SRC_DATA);
-        auto result = libsamplerate::src_set_ratio (resamplers_[channel], jmax (0.0, 1.0 / ratio));
-        result = libsamplerate::src_reset (resamplers_[channel]);
+        src_result = libsamplerate::src_set_ratio (resamplers_[channel], jmax (0.0, 1.0 / ratio));
+        src_result = libsamplerate::src_reset (resamplers_[channel]);
     }
 }
 
@@ -72,7 +72,7 @@ void SRCAudioSource::reset()
 {
     for (auto channel = 0; channel < numChannels; channel++)
     {
-        result = libsamplerate::src_reset (resamplers_[channel]);
+        src_result = libsamplerate::src_reset (resamplers_[channel]);
     }
 }
 
@@ -136,8 +136,8 @@ void SRCAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& info)
             data->output_frames = info.numSamples - samplesGenerated;
             data->src_ratio = 1.0 / lastRatio;
             data->end_of_input = 0; //  Equal to 0 if more input data is available and 1 otherwise.
-            auto result = libsamplerate::src_process (resamplers_[channel], data);
-            jassert (result == 0);
+            src_result = libsamplerate::src_process (resamplers_[channel], data);
+            jassert (src_result == 0);
             // this should be the same for all resamplers
             jassert (data->input_frames_used == data_[jmax(channel - 1, 0)]->input_frames_used);
             jassert (data->output_frames_gen == data_[jmax(channel - 1, 0)]->output_frames_gen);

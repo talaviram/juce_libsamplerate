@@ -21,7 +21,7 @@
     name:               Secret-Rabbit-Code (libsamplerate)
     description:        Secret-Rabbit-Code (libsamplerate by Erik de Castro Lopo) wrapped for JUCE
     minimumCppStandard: 11
-    dependencies:       juce_audio_basics
+    dependencies:       juce_audio_basics, juce_events
     searchpaths:        ./libsamplerate/src
    END_JUCE_MODULE_DECLARATION
 *******************************************************************************/
@@ -31,5 +31,7 @@
 #define JUCE_LIBSAMPLERATE_H_INCLUDED
 
 #include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_events/juce_events.h>
 #include "src_wrappers/libsamplerate_SRC.h"
 #include "src_wrappers/SRCAudioSource.h"
+#include "src_wrappers/SRCAudioTransportSource.h"

@@ -83,6 +83,7 @@ private:
     juce::CriticalSection callbackLock;
 
     int src_error;
+    int src_result;
     const int numChannels;
     HeapBlock<float*> destBuffers;
     HeapBlock<const float*> srcBuffers;
