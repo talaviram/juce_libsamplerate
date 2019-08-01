@@ -1,4 +1,4 @@
 [submodule "libsamplerate"]
-	path = libsamplerate
+	path = juce_libsamplerate/libsamplerate
 	url = git@github.com:talaviram/libsamplerate.git
 
