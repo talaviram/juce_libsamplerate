@@ -64,12 +64,14 @@ void SRCAudioSource::prepareToPlay (int samplesPerBlockExpected, double sampleRa
     {
         data_.add (new libsamplerate::SRC_DATA);
         src_result = libsamplerate::src_set_ratio (resamplers_[channel], jmax (0.0, 1.0 / ratio));
-        src_result = libsamplerate::src_reset (resamplers_[channel]);
     }
+    reset();
 }
 
 void SRCAudioSource::reset()
 {
+    bufferPos = sampsInBuffer = 0;
+    buffer.clear();
     for (auto channel = 0; channel < numChannels; channel++)
     {
         src_result = libsamplerate::src_reset (resamplers_[channel]);
@@ -79,6 +81,8 @@ void SRCAudioSource::reset()
 void SRCAudioSource::releaseResources()
 {
     input->releaseResources();
+    data_.clear();
+    reset();
 }
 
 void SRCAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& info)
@@ -111,28 +115,33 @@ void SRCAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& info)
     const int channelsToProcess = jmin (numChannels, info.buffer->getNumChannels());
 
     int samplesGenerated = 0;
-    int samplesConsumed = 0;
+
     while (info.numSamples > samplesGenerated)
     {
-        int endOfBufferPos = bufferPos + sampsInBuffer;
-        // prepare data struct for process
         bufferPos %= bufferSize;
+        int endOfBufferPos = bufferPos + sampsInBuffer;
 
         endOfBufferPos %= bufferSize;
-        int numToDo = bufferSize - endOfBufferPos;
-        AudioSourceChannelInfo readInfo (&buffer, endOfBufferPos, numToDo);
+        if (sampsInBuffer == 0)
+        {
+            int numToDo = bufferSize - endOfBufferPos;
+            jassert (numToDo >= 0);
+            AudioSourceChannelInfo readInfo (&buffer, endOfBufferPos, numToDo);
 
-        sampsInBuffer += numToDo;
-        input->getNextAudioBlock (readInfo);
+            sampsInBuffer += numToDo;
+            input->getNextAudioBlock (readInfo);
+        }
         for (int channel = 0; channel < numChannels; ++channel)
         {
             destBuffers[channel] = info.buffer->getWritePointer (channel, info.startSample + samplesGenerated);
-            srcBuffers[channel] = buffer.getReadPointer (jmin(channel, channelsToProcess - 1), endOfBufferPos);
+            srcBuffers[channel] = buffer.getReadPointer (jmin(channel, channelsToProcess - 1), bufferPos);
 
+            // prepare data struct for process
             auto* data = data_[channel];
             data->data_in = srcBuffers[channel];
             data->data_out = destBuffers[channel];
-            data->input_frames = numToDo;
+            jassert (sampsInBuffer <= bufferSize);
+            data->input_frames = sampsInBuffer;
             data->output_frames = info.numSamples - samplesGenerated;
             data->src_ratio = 1.0 / lastRatio;
             data->end_of_input = 0; //  Equal to 0 if more input data is available and 1 otherwise.
@@ -144,7 +153,7 @@ void SRCAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& info)
             jassert (data->end_of_input == 0);
         }
         sampsInBuffer -= data_[0]->input_frames_used;
-        samplesConsumed += data_[0]->input_frames_used;
+        bufferPos += data_[0]->input_frames_used; // this will % at top of loop.
         samplesGenerated += data_[0]->output_frames_gen;
         jassert (sampsInBuffer >= 0);
         jassert (samplesGenerated > 0);
