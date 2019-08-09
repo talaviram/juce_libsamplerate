@@ -68,6 +68,14 @@ namespace libsamplerate {
 int SRC::resample (const juce::AudioBuffer<float>& bufferToResample, juce::AudioBuffer<float>& outputBuffer, const double samplesInPerOutputSample, const ResamplerQuality converter_type)
 {
     jassert (bufferToResample.getNumChannels() > 0 && outputBuffer.getNumChannels() >= bufferToResample.getNumChannels());
+
+    // don't resample empty buffer if buffered was explicitly cleared.
+    if (bufferToResample.hasBeenCleared())
+    {
+        outputBuffer.clear();
+        return 0;
+    }
+
     SRC_DATA data;
     data.data_in = bufferToResample.getReadPointer (0);
     data.input_frames = bufferToResample.getNumSamples();
