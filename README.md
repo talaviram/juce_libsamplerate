@@ -23,3 +23,9 @@ JUCE has ~2~ 1.5 ways for doing sample-rate-conversion.
 
 The first one is pretty bad. see [here](http://src.infinitewave.ca/).
 The second one was designed for different purposes (and use fixed ratios) which makes it less usable for plain-SRC.
+
+Why libsamplerate?
+------------------
+
+* license: libsamplerate is now BSD (unlike SoX and other libs)
+* quality: it's updated and maintained if needed.
